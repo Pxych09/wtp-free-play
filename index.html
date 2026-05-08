@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Pokémon World — Who's That Pokémon?</title>
+  <link rel="stylesheet" href="./pokemon.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet" />
+  <link rel="icon" href="https://cdn-icons-png.flaticon.com/512/528/528101.png" type="image/png">
+
+</head>
+<body>
+
+  <!-- ============================
+       BACKGROUND DECORATIONS
+  ============================= -->
+  <div class="bg-decoration">
+    <div class="bg-circle bg-circle--1"></div>
+    <div class="bg-circle bg-circle--2"></div>
+    <div class="bg-circle bg-circle--3"></div>
+    <div class="pokeball-bg"></div>
+  </div>
+
+  <!-- ============================
+       MAIN APP WRAPPER
+  ============================= -->
+  <div id="app">
+
+    <!-- HEADER -->
+    <header class="header">
+      <div class="header__logo">
+        <h1 class="header__title">Pokémon World</h1>
+      </div>
+      <div class="header__stats">
+        <div class="stat-badge" id="streakBadge">
+          <span class="stat-badge__icon">🔥</span>
+          <span class="stat-badge__value" id="streakCount">0</span>
+          <span class="stat-badge__label">Streak</span>
+        </div>
+        <div class="stat-badge" id="scoreBadge">
+          <span class="stat-badge__icon">⭐</span>
+          <span class="stat-badge__value" id="scoreCount">0</span>
+          <span class="stat-badge__label">Score</span>
+        </div>
+        <button class="theme-toggle" id="themeToggle" title="Toggle Theme">🌙</button>
+        <button class="theme-toggle dev-toggle" id="devToggle" title="Dev Mode: Infinite Pokéballs" disabled>⚙️</button>
+      </div>
+    </header>
+
+    <!-- MAIN CONTENT -->
+    <main class="main">
+
+      <!-- ============================
+           SCREEN: START
+      ============================= -->
+      <section class="screen screen--start active" id="screenStart">
+        <div class="card card--start">
+          <div class="card__pokeball-deco"></div>
+          <div class="card__content">
+            <p class="card__eyebrow">Classic Challenge</p>
+            <h2 class="card__title">Who's That<br /><span class="highlight">Pokémon?</span></h2>
+            <p class="card__desc">
+              A Pokémon is hiding in the shadows!<br />
+              Use your Pokéballs wisely to guess who it is.
+            </p>
+            <div class="start-info">
+              <div class="start-info__item">
+                <span class="start-info__icon">⚪</span>
+                <span>3 Pokéballs per day</span>
+              </div>
+              <div class="start-info__item">
+                <span class="start-info__icon">🕐</span>
+                <span>Resets every 24 hours</span>
+              </div>
+              <div class="start-info__item">
+                <span class="start-info__icon">💡</span>
+                <span>Hints unlock on 2nd wrong guess</span>
+              </div>
+            </div>
+            <button class="btn btn--primary btn--large" id="btnStart">
+              <span class="btn__icon">▶</span>
+              Ready to Guess!
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============================
+           SCREEN: GAME
+      ============================= -->
+      <section class="screen screen--game" id="screenGame">
+        <div class="game-layout">
+
+          <!-- Left: Pokémon Display -->
+          <div class="pokemon-panel">
+            <div class="pokemon-stage" id="pokemonStage">
+              <div class="pokemon-stage__glow" id="stageGlow"></div>
+              <div class="loading-spinner" id="loadingSpinner">
+                <div class="spinner"></div>
+                <p>Fetching Pokémon...</p>
+              </div>
+              <img
+                class="pokemon-img"
+                id="pokemonImg"
+                src=""
+                alt="Mystery Pokémon"
+                draggable="false"
+              />
+              <div class="question-mark" id="questionMark">?</div>
+            </div>
+
+            <!-- Pokéballs -->
+            <div class="pokeballs-container">
+              <p class="pokeballs-label">Pokéballs</p>
+              <div class="pokeballs" id="pokeballs">
+                <span class="pokeball pokeball--active" data-ball="1"><img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/poke-ball.png" alt="pokeball" /></span>
+                <span class="pokeball pokeball--active" data-ball="2"><img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/poke-ball.png" alt="pokeball" /></span>
+                <span class="pokeball pokeball--active" data-ball="3"><img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/poke-ball.png" alt="pokeball" /></span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Right: Guess Panel -->
+          <div class="guess-panel">
+            <div class="guess-card">
+              <div class="guess-card__header">
+                <h2 class="guess-card__title">Who's That Pokémon?</h2>
+                <span class="gen-badge hidden" id="genBadge"></span>
+              </div>
+
+              <!-- Hint Box (hidden initially) -->
+              <div class="hint-box hidden" id="hintBox">
+                <div class="hint-box__header">
+                  <span class="hint-box__icon">💡</span>
+                  <span class="hint-box__title">Hint Unlocked!</span>
+                </div>
+                <p class="hint-box__text" id="hintText"></p>
+              </div>
+
+              <!-- Input Area -->
+              <div class="input-group" id="inputGroup">
+                <input
+                  type="text"
+                  class="guess-input"
+                  id="guessInput"
+                  placeholder="Enter Pokémon name..."
+                  autocomplete="off"
+                  spellcheck="false"
+                />
+                <button class="btn btn--primary" id="btnGuess">
+                  <span>Guess!</span>
+                </button>
+              </div>
+
+              <!-- Feedback Message -->
+              <div class="feedback hidden" id="feedback"></div>
+
+              <!-- Skip Button -->
+              <button class="btn btn--ghost btn--sm" id="btnSkip">
+                Skip this Pokémon
+              </button>
+            </div>
+
+            <!-- Revealed Info Card (hidden until correct) -->
+            <div class="info-card hidden" id="infoCard">
+              <div class="info-card__header">
+                <h3 class="info-card__name" id="infoName"></h3>
+                <div class="info-card__types" id="infoTypes"></div>
+              </div>
+              <div class="info-card__rarity" id="infoRarity"></div>
+              <p class="info-card__desc" id="infoDesc"></p>
+              <div class="info-card__stats" id="infoStats"></div>
+              <div class="info-card__abilities" id="infoAbilities"></div>
+              <button class="btn btn--primary btn--full" id="btnNext">
+                ▶ Next Pokémon
+              </button>
+            </div>
+          </div>
+
+        </div>
+      </section>
+
+      <!-- ============================
+           SCREEN: COOLDOWN
+      ============================= -->
+      <section class="screen screen--cooldown" id="screenCooldown">
+        <div class="card card--cooldown">
+          <div class="cooldown-icon">😴</div>
+          <h2 class="cooldown-title">Out of Pokéballs!</h2>
+          <p class="cooldown-desc">
+            You've used all your attempts for today.<br />
+            Your Pokéballs will refill in:
+          </p>
+          <div class="cooldown-timer" id="cooldownTimer">
+            <div class="timer-block">
+              <span class="timer-val" id="timerH">00</span>
+              <span class="timer-unit">hrs</span>
+            </div>
+            <span class="timer-sep">:</span>
+            <div class="timer-block">
+              <span class="timer-val" id="timerM">00</span>
+              <span class="timer-unit">min</span>
+            </div>
+            <span class="timer-sep">:</span>
+            <div class="timer-block">
+              <span class="timer-val" id="timerS">00</span>
+              <span class="timer-unit">sec</span>
+            </div>
+          </div>
+          <div class="cooldown-stats">
+            <p>Today's score: <strong id="cooldownScore">0</strong></p>
+            <p>Current streak: <strong id="cooldownStreak">0</strong> 🔥</p>
+          </div>
+        </div>
+      </section>
+
+    </main>
+
+    <!-- ============================
+         TOAST NOTIFICATION
+    ============================= -->
+    <div class="toast-container" id="toastContainer"></div>
+
+    <!-- ============================
+         OVERLAY: WIN CELEBRATION
+    ============================= -->
+    <div class="overlay hidden" id="winOverlay">
+      <div class="win-card">
+        <div class="win-card__emoji" id="winEmoji">🎉</div>
+        <h2 class="win-card__title" id="winTitle">Correct!</h2>
+        <p class="win-card__sub" id="winSub"></p>
+        <div class="confetti-container" id="confettiContainer"></div>
+      </div>
+    </div>
+
+  </div><!-- /#app -->
+
+  <!-- Audio Elements -->
+  <audio id="sfxCorrect" preload="auto"></audio>
+  <audio id="sfxWrong" preload="auto"></audio>
+  <audio id="sfxReveal" preload="auto"></audio>
+  <audio id="sfxClick" preload="auto"></audio>
+  <audio id="sfxCry" preload="auto"></audio>
+
+  <script src="./pokemon.js"></script>
+</body>
+</html>
