@@ -1158,3 +1158,105 @@ body.light .header {
   .win-card__emoji { font-size: 54px; }
   .win-card__title { font-size: 18px; }
 }
+
+/* ============================================
+   MULTIPLE CHOICE GRID
+   Add this block to pokemon.css
+============================================ */
+
+.choices-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.choice-btn {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 16px;
+  background: var(--input-bg);
+  border: 2px solid var(--input-border);
+  border-radius: var(--radius-md);
+  font-family: var(--font-body);
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text-primary);
+  cursor: pointer;
+  transition: var(--transition-bounce);
+  text-align: left;
+  word-break: break-word;
+}
+
+.choice-btn:hover:not(:disabled) {
+  border-color: var(--yellow);
+  background: rgba(255, 203, 5, 0.08);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 16px var(--yellow-glow);
+}
+
+.choice-btn:active:not(:disabled) {
+  transform: scale(0.97);
+}
+
+.choice-btn__letter {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 26px;
+  height: 26px;
+  border-radius: 6px;
+  background: var(--border);
+  font-size: 12px;
+  font-weight: 900;
+  color: var(--text-muted);
+  flex-shrink: 0;
+  transition: var(--transition);
+}
+
+.choice-btn:hover:not(:disabled) .choice-btn__letter {
+  background: var(--yellow);
+  color: #1a1400;
+}
+
+/* Correct answer */
+.choice-btn.correct {
+  border-color: var(--green);
+  background: rgba(61, 220, 132, 0.12);
+  color: var(--green);
+  pointer-events: none;
+}
+.choice-btn.correct .choice-btn__letter {
+  background: var(--green);
+  color: #fff;
+}
+
+/* Wrong answer (the one the user picked) */
+.choice-btn.wrong {
+  border-color: var(--red-light);
+  background: rgba(255, 77, 77, 0.1);
+  color: var(--red-light);
+  pointer-events: none;
+}
+.choice-btn.wrong .choice-btn__letter {
+  background: var(--red-light);
+  color: #fff;
+}
+
+/* Dim all other options after a pick */
+.choice-btn.dimmed {
+  opacity: 0.35;
+  pointer-events: none;
+}
+
+/* Disabled state (round over) */
+.choice-btn:disabled,
+.choices-grid.round-over .choice-btn {
+  pointer-events: none;
+}
+
+@media (max-width: 480px) {
+  .choices-grid {
+    grid-template-columns: 1fr;
+  }
+}
