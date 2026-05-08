@@ -223,6 +223,8 @@ body.light .header {
   text-transform: uppercase;
   letter-spacing: 0.5px;
 }
+
+/* FIX: Pop animation targets value directly, not the whole badge scale */
 .stat-badge.pop .stat-badge__value {
   transform: scale(1.4);
   color: var(--green);
@@ -415,6 +417,16 @@ body.light .header {
 .btn--full { width: 100%; }
 
 .btn__icon { font-size: 12px; }
+
+/* FIX: Single consolidated disabled rule for all buttons */
+.btn:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+  pointer-events: none;
+  transform: none !important;
+  box-shadow: none !important;
+  filter: grayscale(0.5);
+}
 
 /* ============================================
    GAME LAYOUT
@@ -627,14 +639,14 @@ body.light .header {
 }
 
 /* Gen color themes */
-.gen--1 { background: rgba(255, 100,  50, 0.12); color: #ff7043; border-color: rgba(255,100,50,0.35); }   /* Kanto — warm red */
-.gen--2 { background: rgba(255, 203,   5, 0.12); color: #ffcb05; border-color: rgba(255,203, 5,0.35); }   /* Johto — gold */
-.gen--3 { background: rgba( 61, 220, 132, 0.12); color: #3ddc84; border-color: rgba( 61,220,132,0.35); }  /* Hoenn — green */
-.gen--4 { background: rgba( 42, 117, 187, 0.12); color: #4a95db; border-color: rgba( 42,117,187,0.35); }  /* Sinnoh — blue */
-.gen--5 { background: rgba(180, 180, 180, 0.10); color: #c0c0c0; border-color: rgba(180,180,180,0.30); }  /* Unova — grey */
-.gen--6 { background: rgba(200, 125, 255, 0.12); color: #c87dff; border-color: rgba(200,125,255,0.35); }  /* Kalos — purple */
-.gen--7 { background: rgba(255, 160,  50, 0.12); color: #ffb347; border-color: rgba(255,160, 50,0.35); }  /* Alola — orange */
-.gen--8 { background: rgba( 80, 200, 240, 0.12); color: #50c8f0; border-color: rgba( 80,200,240,0.35); }  /* Galar — cyan */
+.gen--1 { background: rgba(255, 100,  50, 0.12); color: #ff7043; border-color: rgba(255,100,50,0.35); }
+.gen--2 { background: rgba(255, 203,   5, 0.12); color: #ffcb05; border-color: rgba(255,203, 5,0.35); }
+.gen--3 { background: rgba( 61, 220, 132, 0.12); color: #3ddc84; border-color: rgba( 61,220,132,0.35); }
+.gen--4 { background: rgba( 42, 117, 187, 0.12); color: #4a95db; border-color: rgba( 42,117,187,0.35); }
+.gen--5 { background: rgba(180, 180, 180, 0.10); color: #c0c0c0; border-color: rgba(180,180,180,0.30); }
+.gen--6 { background: rgba(200, 125, 255, 0.12); color: #c87dff; border-color: rgba(200,125,255,0.35); }
+.gen--7 { background: rgba(255, 160,  50, 0.12); color: #ffb347; border-color: rgba(255,160, 50,0.35); }
+.gen--8 { background: rgba( 80, 200, 240, 0.12); color: #50c8f0; border-color: rgba( 80,200,240,0.35); }
 
 /* ============================================
    HINT BOX
@@ -664,92 +676,6 @@ body.light .header {
   font-size: 14px;
   color: var(--text-secondary);
   line-height: 1.6;
-}
-
-/* ============================================
-   INPUT GROUP
-============================================ */
-.input-group {
-  display: flex;
-  gap: 10px;
-}
-
-.guess-input {
-  flex: 1;
-  background: var(--input-bg);
-  border: 2px solid var(--input-border);
-  border-radius: var(--radius-md);
-  padding: 14px 18px;
-  font-size: 15px;
-  font-family: var(--font-body);
-  font-weight: 700;
-  color: var(--text-primary);
-  transition: var(--transition);
-  outline: none;
-}
-.guess-input::placeholder { color: var(--text-muted); font-weight: 600; }
-.guess-input:focus {
-  border-color: var(--yellow);
-  box-shadow: 0 0 0 3px var(--yellow-glow);
-  background: var(--bg-card);
-}
-.guess-input.shake-input {
-  animation: inputShake 0.4s ease both;
-  border-color: var(--red-light);
-  box-shadow: 0 0 0 3px rgba(255,77,77,0.25);
-}
-@keyframes inputShake {
-  0%,100% { transform: translateX(0); }
-  25% { transform: translateX(-6px); }
-  75% { transform: translateX(6px); }
-}
-.guess-input.correct {
-  border-color: var(--green);
-  box-shadow: 0 0 0 3px rgba(61,220,132,0.25);
-}
-.guess-input:disabled {
-  opacity: 0.35;
-  cursor: not-allowed;
-  pointer-events: none;
-}
-
-/* Disabled state for all buttons in the guess area */
-.btn:disabled {
-  opacity: 0.3;
-  cursor: not-allowed;
-  pointer-events: none;
-  transform: none !important;
-  box-shadow: none !important;
-  filter: grayscale(0.5);
-}
-
-/* Round-over state — dims the whole input group as a unit */
-.input-group.round-over {
-  opacity: 0.3;
-  pointer-events: none;
-  transition: opacity var(--transition);
-}
-.input-group.round-over::after {
-  content: '✓ Round over';
-  position: absolute;
-  inset: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 11px;
-  font-weight: 800;
-  letter-spacing: 2px;
-  text-transform: uppercase;
-  color: var(--green);
-  pointer-events: none;
-}
-.input-group { position: relative; }
-
-/* Skip button disabled label swap */
-.btn--ghost:disabled {
-  opacity: 0.25;
-  cursor: not-allowed;
-  pointer-events: none;
 }
 
 /* ============================================
@@ -834,10 +760,10 @@ body.light .header {
   border-radius: 20px;
   align-self: flex-start;
 }
-.rarity--common { background: rgba(150,150,150,0.15); color: #aaa; border: 1px solid rgba(150,150,150,0.3); }
+.rarity--common   { background: rgba(150,150,150,0.15); color: #aaa; border: 1px solid rgba(150,150,150,0.3); }
 .rarity--uncommon { background: rgba(61,220,132,0.12); color: var(--green); border: 1px solid rgba(61,220,132,0.3); }
-.rarity--rare { background: rgba(42,117,187,0.12); color: var(--blue-light); border: 1px solid rgba(42,117,187,0.3); }
-.rarity--epic { background: rgba(150,50,200,0.12); color: #c87dff; border: 1px solid rgba(150,50,200,0.3); }
+.rarity--rare     { background: rgba(42,117,187,0.12); color: var(--blue-light); border: 1px solid rgba(42,117,187,0.3); }
+.rarity--epic     { background: rgba(150,50,200,0.12); color: #c87dff; border: 1px solid rgba(150,50,200,0.3); }
 .rarity--legendary { background: rgba(255,203,5,0.12); color: var(--yellow); border: 1px solid rgba(255,203,5,0.3); }
 .rarity--mythical { background: rgba(255,100,50,0.12); color: #ff8060; border: 1px solid rgba(255,100,50,0.3); }
 
@@ -854,7 +780,7 @@ body.light .header {
 
 .info-card__stats {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(4, 1fr);
   gap: 8px;
 }
 .stat-item {
@@ -1120,50 +1046,8 @@ body.light .header {
 .hidden { display: none !important; }
 
 /* ============================================
-   RESPONSIVE DESIGN
-============================================ */
-@media (max-width: 768px) {
-  .header { padding: 12px 16px; }
-  .header__title { font-size: 8px; }
-  .stat-badge__label { display: none; }
-
-  .main { padding: 16px 12px; }
-
-  .game-layout {
-    grid-template-columns: 1fr;
-    gap: 16px;
-  }
-  .pokemon-stage { max-width: 280px; }
-
-  .card--start { padding: 32px 24px; }
-  .card--cooldown { padding: 36px 24px; }
-
-  .guess-card { padding: 24px 20px; }
-  .info-card { padding: 20px; }
-
-  .info-card__stats { grid-template-columns: repeat(3, 1fr); }
-
-  .toast-container { right: 12px; left: 12px; }
-  .toast { min-width: unset; max-width: unset; }
-
-  .cooldown-timer { padding: 16px 20px; }
-  .timer-val { min-width: 48px; font-size: 28px; }
-}
-
-@media (max-width: 480px) {
-  .card__title { font-size: 16px; }
-  .input-group { flex-direction: column; }
-  .btn--primary { width: 100%; }
-  .win-card { padding: 36px 24px; }
-  .win-card__emoji { font-size: 54px; }
-  .win-card__title { font-size: 18px; }
-}
-
-/* ============================================
    MULTIPLE CHOICE GRID
-   Add this block to pokemon.css
 ============================================ */
-
 .choices-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -1250,13 +1134,46 @@ body.light .header {
 }
 
 /* Disabled state (round over) */
-.choice-btn:disabled,
-.choices-grid.round-over .choice-btn {
+.choice-btn:disabled {
   pointer-events: none;
 }
 
-@media (max-width: 480px) {
-  .choices-grid {
+/* ============================================
+   RESPONSIVE DESIGN
+============================================ */
+@media (max-width: 768px) {
+  .header { padding: 12px 16px; }
+  .header__title { font-size: 8px; }
+  .stat-badge__label { display: none; }
+
+  .main { padding: 16px 12px; }
+
+  .game-layout {
     grid-template-columns: 1fr;
+    gap: 16px;
   }
+  .pokemon-stage { max-width: 280px; }
+
+  .card--start { padding: 32px 24px; }
+  .card--cooldown { padding: 36px 24px; }
+
+  .guess-card { padding: 24px 20px; }
+  .info-card { padding: 20px; }
+
+  /* FIX: 4 stats fit in 2x2 on mobile, 4-col grid is too cramped */
+  .info-card__stats { grid-template-columns: repeat(2, 1fr); }
+
+  .toast-container { right: 12px; left: 12px; }
+  .toast { min-width: unset; max-width: unset; }
+
+  .cooldown-timer { padding: 16px 20px; }
+  .timer-val { min-width: 48px; font-size: 28px; }
+}
+
+@media (max-width: 480px) {
+  .card__title { font-size: 16px; }
+  .win-card { padding: 36px 24px; }
+  .win-card__emoji { font-size: 54px; }
+  .win-card__title { font-size: 18px; }
+  .choices-grid { grid-template-columns: 1fr; }
 }
