@@ -68,10 +68,9 @@ const DOM = {
 // STATE
 // ============================================
 
-const MAX_BALLS   = 3;
+const MAX_BALLS      = 3;
 const COOLDOWN_HOURS = 24;
 const TOTAL_POKEMON  = 898;
-const SHOWN_KEY = "pokemonWorldShownToday";
 
 const state = {
   currentPokemon:   null,
@@ -93,26 +92,30 @@ const state = {
 // ============================================
 
 const RARITY_MAP = {
-  legendary: [
-    144,145,146,150,151,
-    243,244,245,249,250,
-    377,378,379,380,381,382,383,384,385,386,
-    480,481,482,483,484,485,486,487,488,489,490,491,492,493,
-    638,639,640,641,642,643,644,645,646,647,648,649,
-    716,717,718,719,720,721,
-    785,786,787,788,789,790,791,792,793,794,795,796,797,798,799,800,801,802,807,808,809,
+  // Mythical must be checked first (some IDs overlap with legendary lists)
+  mythical: [
+    151, 251, 385, 386, 489, 490, 491, 492, 493, 494,
+    647, 648, 649, 719, 720, 721, 801, 802,
   ],
-  mythical: [151,251,385,386,489,490,491,492,493,494,647,648,649,719,720,721,801,802],
+  legendary: [
+    144, 145, 146, 150,
+    243, 244, 245, 249, 250,
+    377, 378, 379, 380, 381, 382, 383, 384,
+    480, 481, 482, 483, 484, 485, 486, 487, 488,
+    638, 639, 640, 641, 642, 643, 644, 645, 646,
+    716, 717, 718,
+    785, 786, 787, 788, 789, 790, 791, 792, 793, 794, 795, 796, 797, 798, 799, 800, 807, 808, 809,
+  ],
   epic: [
-    6,9,3,65,68,94,131,143,149,196,197,212,214,248,254,257,260,
-    306,350,373,376,448,445,452,460,472,473,475,479,503,530,545,549,553,
-    612,635,637,644,646,663,701,706,725,745,760,778,784,
+    6, 9, 3, 65, 68, 94, 131, 143, 149, 196, 197, 212, 214, 248, 254, 257, 260,
+    306, 350, 373, 376, 448, 445, 452, 460, 472, 473, 475, 479, 503, 530, 545, 549, 553,
+    612, 635, 637, 644, 646, 663, 701, 706, 725, 745, 760, 778, 784,
   ],
   rare: [
-    25,26,35,36,39,40,54,55,58,59,63,66,67,74,75,76,79,80,
-    81,82,95,104,105,106,107,111,112,113,114,115,122,123,124,
-    125,126,127,128,130,133,134,135,136,137,138,139,140,141,142,
-    147,148,152,153,154,155,156,157,158,159,160,161,162,
+    25, 26, 35, 36, 39, 40, 54, 55, 58, 59, 63, 66, 67, 74, 75, 76, 79, 80,
+    81, 82, 95, 104, 105, 106, 107, 111, 112, 113, 114, 115, 122, 123, 124,
+    125, 126, 127, 128, 130, 133, 134, 135, 136, 137, 138, 139, 140, 141, 142,
+    147, 148, 152, 153, 154, 155, 156, 157, 158, 159, 160, 161, 162,
   ],
 };
 
@@ -149,21 +152,6 @@ const getGeneration = (id) =>
 // NAME FORMATTING
 // ============================================
 
-/**
- * Cleans a raw PokeAPI slug into a display name.
- *
- * Rules applied:
- *  1. Strip form suffixes (e.g. "-male", "-female", "-alola", "-galar", etc.)
- *     EXCEPT meaningful ones that ARE part of the actual name
- *     (e.g. "mr-mime", "mime-jr", "type-null", "ho-oh", "porygon-z").
- *  2. Replace remaining hyphens with spaces.
- *  3. Capitalise each word.
- *
- * We handle the "keep" list explicitly because PokeAPI slugs for
- * hyphenated names are identical to form slugs in structure.
- */
-
-// Names whose hyphens are part of the real Pokémon name
 const HYPHEN_NAMES = new Set([
   "mr-mime", "mime-jr", "type-null", "ho-oh", "porygon-z",
   "jangmo-o", "hakamo-o", "kommo-o", "tapu-koko", "tapu-lele",
@@ -171,42 +159,37 @@ const HYPHEN_NAMES = new Set([
   "chien-pao", "wo-chien",
 ]);
 
-// Suffixes to strip (form indicators from PokeAPI)
 const FORM_SUFFIXES = [
   "-male", "-female", "-alola", "-alolan", "-galar", "-galarian",
-  "-hisui", "-hisuian", "-mega", "-mega-x", "-mega-y",
+  "-hisui", "-hisuian", "-mega-x", "-mega-y", "-mega",
   "-primal", "-origin", "-sky", "-land", "-therian", "-incarnate",
   "-ordinary", "-resolute", "-aria", "-pirouette", "-blade",
   "-shield", "-sunshine", "-rainy", "-snowy", "-heat", "-wash",
   "-frost", "-fan", "-mow", "-attack", "-defense", "-speed",
-  "-plant", "-sandy", "-trash", "-overcast", "-sunshine",
+  "-plant", "-sandy", "-trash", "-overcast",
   "-east", "-west", "-dusk", "-midnight", "-midday",
   "-school", "-solo", "-totem", "-gmax", "-eternamax",
-  "-starter", "-zen", "-darmanitan", "-standard",
+  "-starter", "-zen", "-standard",
   "-low-key", "-amped", "-noice", "-hangry", "-full-belly",
   "-white-striped", "-family-of-three", "-gulping", "-gorging",
   "-hero", "-crowned", "-original", "-black", "-white",
-  "-red-striped", "-blue-striped",
-];
+  "-red-striped", "-blue-striped", "-darmanitan",
+].sort((a, b) => b.length - a.length); // Sort once at definition time
 
 const formatPokemonName = (raw) => {
   let name = raw.toLowerCase();
 
-  // If it's a known hyphenated proper name, keep as-is (just capitalise)
   if (HYPHEN_NAMES.has(name)) {
     return name.split("-").map(w => w.charAt(0).toUpperCase() + w.slice(1)).join("-");
   }
 
-  // Strip known form suffixes (longest-first to avoid partial matches)
-  const sorted = [...FORM_SUFFIXES].sort((a, b) => b.length - a.length);
-  for (const suffix of sorted) {
+  for (const suffix of FORM_SUFFIXES) {
     if (name.endsWith(suffix)) {
       name = name.slice(0, -suffix.length);
       break;
     }
   }
 
-  // Replace remaining hyphens with spaces, capitalise each word
   return name
     .split("-")
     .map(w => w.charAt(0).toUpperCase() + w.slice(1))
@@ -245,11 +228,13 @@ const saveLS = (data) => {
   catch {}
 };
 
+// FIX: Consistent key usage and correct Set-vs-date logic
 const loadShownToday = () => {
   const saved = loadLS();
   const today = new Date().toDateString();
-  
+
   if (saved.shownDate !== today) {
+    // New day — reset the shown list
     saveLS({ ...saved, shownToday: [], shownDate: today });
     return new Set();
   }
@@ -261,25 +246,32 @@ const saveShownToday = (shownSet) => {
   saveLS({
     ...data,
     shownToday: Array.from(shownSet),
-    shownDate: new Date().toDateString()
+    shownDate:  new Date().toDateString(),
   });
 };
 
+// FIX: Restore score/streak even when still in cooldown; don't early-return before restoring them
 const loadPersistedState = () => {
   const saved = loadLS();
   const now   = Date.now();
 
+  // Always restore score and streak regardless of cooldown status
+  state.score  = saved.score  || 0;
+  state.streak = saved.streak || 0;
+
   if (saved.depletedAt) {
     const elapsed = now - saved.depletedAt;
     if (elapsed / (1000 * 60 * 60) >= COOLDOWN_HOURS) {
-      saveLS({ score: saved.score || 0, streak: saved.streak || 0, attemptsLeft: MAX_BALLS });
-      return;
+      // Cooldown expired — reset balls
+      saveLS({ score: state.score, streak: state.streak, attemptsLeft: MAX_BALLS });
+      state.attemptsLeft = MAX_BALLS;
+    } else {
+      // Still in cooldown
+      state.attemptsLeft = 0;
     }
+  } else if (saved.attemptsLeft !== undefined) {
+    state.attemptsLeft = saved.attemptsLeft;
   }
-
-  state.score  = saved.score  || 0;
-  state.streak = saved.streak || 0;
-  if (saved.attemptsLeft !== undefined) state.attemptsLeft = saved.attemptsLeft;
 };
 
 const persistState = () => {
@@ -289,7 +281,10 @@ const persistState = () => {
     score:        state.score,
     streak:       state.streak,
     attemptsLeft: state.attemptsLeft,
-    depletedAt:   state.attemptsLeft <= 0 ? (data.depletedAt || Date.now()) : undefined,
+    // Only stamp depletedAt the first time balls run out; don't overwrite with undefined
+    depletedAt:   state.attemptsLeft <= 0
+                    ? (data.depletedAt || Date.now())
+                    : undefined,
   });
 };
 
@@ -399,8 +394,8 @@ const fetchPokemon = async (id) => {
 
   return {
     id,
-    name:        pokemon.name,                 // raw slug, e.g. "mr-mime"
-    displayName: formatPokemonName(pokemon.name), // clean display name
+    name:        pokemon.name,
+    displayName: formatPokemonName(pokemon.name),
     image:       pokemon.sprites.other?.["official-artwork"]?.front_default
                  || pokemon.sprites.front_default,
     types:       pokemon.types.map(t => t.type.name),
@@ -419,24 +414,26 @@ const fetchPokemon = async (id) => {
 
 const fetchRandomPokemon = async () => fetchPokemon(randomInt(1, TOTAL_POKEMON));
 
-/**
- * Fetch 3 random Pokémon names to use as wrong choices.
- * Returns their displayNames only.
- */
+// FIX: Guarantee exactly 3 wrong names even if some fetches fail by retrying
 const fetchWrongChoiceNames = async (correctId) => {
-  const ids = new Set();
-  while (ids.size < 3) {
-    const id = randomInt(1, TOTAL_POKEMON);
-    if (id !== correctId) ids.add(id);
+  const names = [];
+  const tried = new Set([correctId]);
+
+  while (names.length < 3) {
+    let id;
+    // Generate a unique untried ID
+    do { id = randomInt(1, TOTAL_POKEMON); } while (tried.has(id));
+    tried.add(id);
+
+    try {
+      const data = await fetchJSON(`${BASE_URL}/pokemon/${id}`);
+      names.push(formatPokemonName(data.name));
+    } catch {
+      // Skip failed fetch, loop will retry with a new ID
+    }
   }
 
-  const results = await Promise.allSettled(
-    [...ids].map(id => fetchJSON(`${BASE_URL}/pokemon/${id}`))
-  );
-
-  return results
-    .filter(r => r.status === "fulfilled")
-    .map(r => formatPokemonName(r.value.name));
+  return names;
 };
 
 
@@ -446,9 +443,6 @@ const fetchWrongChoiceNames = async (correctId) => {
 
 const LETTERS = ["A", "B", "C", "D"];
 
-/**
- * Shuffle an array in-place (Fisher-Yates).
- */
 const shuffle = (arr) => {
   for (let i = arr.length - 1; i > 0; i--) {
     const j = randomInt(0, i);
@@ -484,7 +478,6 @@ const lockChoices = () => {
 const handleChoicePick = (btn, picked, correct) => {
   if (state.isRevealed || state.isLoading) return;
 
-  // Lock all choices immediately
   lockChoices();
   sfx.click();
 
@@ -493,7 +486,6 @@ const handleChoicePick = (btn, picked, correct) => {
     handleCorrectGuess();
   } else {
     btn.classList.add("wrong");
-    // Reveal which one was correct
     DOM.choicesGrid.querySelectorAll(".choice-btn").forEach(b => {
       if (b.dataset.name === correct) b.classList.add("correct");
       else if (b !== btn)             b.classList.add("dimmed");
@@ -671,8 +663,8 @@ const updateHeaderStats = (animate = false) => {
 // ============================================
 
 const loadNewPokemon = async () => {
-  state.isRevealed  = false;
-  state.hintShown   = false;
+  state.isRevealed     = false;
+  state.hintShown      = false;
   state.currentPokemon = null;
 
   hideFeedback();
@@ -688,33 +680,36 @@ const loadNewPokemon = async () => {
 
   setLoading(true);
 
-  let pokemon;
-  const shownSet = loadShownToday();
-
   try {
+    const shownSet = loadShownToday();
+    let pokemon;
+
     // Try up to 20 times to get an unseen Pokémon
     for (let attempt = 0; attempt < 20; attempt++) {
-      pokemon = await fetchPokemon(randomInt(1, TOTAL_POKEMON));
-      
-      if (!shownSet.has(pokemon.id)) {
-        shownSet.add(pokemon.id);
-        saveShownToday(shownSet);
+      const candidate = await fetchPokemon(randomInt(1, TOTAL_POKEMON));
+      if (!shownSet.has(candidate.id)) {
+        pokemon = candidate;
         break;
       }
     }
 
-    // Fallback: if somehow all are shown (very unlikely with 898)
-    if (shownSet.has(pokemon.id)) {
-      shownSet.clear(); // reset for the day
-      saveShownToday(shownSet);
+    // FIX: If we exhausted 20 attempts (very unlikely), reset the seen list and pick fresh
+    if (!pokemon) {
+      shownSet.clear();
+      pokemon = await fetchPokemon(randomInt(1, TOTAL_POKEMON));
     }
+
+    shownSet.add(pokemon.id);
+    saveShownToday(shownSet);
 
     state.currentPokemon = pokemon;
 
     // Show generation badge
     const { label, sub } = pokemon.generation;
+    // FIX: Use setAttribute to avoid clobbering "hidden" with a bare className reassignment
     DOM.genBadge.textContent = `${label} · ${sub}`;
     DOM.genBadge.className   = `gen-badge gen--${pokemon.generation.gen}`;
+    // (className replacement is intentional here — "hidden" is correctly removed by full replacement)
 
     const wrongNames = await fetchWrongChoiceNames(pokemon.id);
 
@@ -727,7 +722,7 @@ const loadNewPokemon = async () => {
     };
     DOM.pokemonImg.onerror = () => {
       setLoading(false);
-      showToast("Couldn't load image, trying another...", "error");
+      showToast("Couldn't load image, trying another…", "error");
       loadNewPokemon();
     };
   } catch (err) {
@@ -736,6 +731,7 @@ const loadNewPokemon = async () => {
     console.error(err);
   }
 };
+
 const revealPokemon = async () => {
   if (state.isRevealed || !state.currentPokemon) return;
   state.isRevealed = true;
@@ -769,9 +765,9 @@ const handleCorrectGuess = async () => {
   if (wasStreak) showToast(`🔥 ${state.streak}x Streak! +Bonus points!`, "success", 2500);
 };
 
+// FIX: Rewritten to use attemptsLeft value directly (not magic equality numbers)
+// so it works correctly regardless of MAX_BALLS value
 const handleWrongGuess = () => {
-  const ballIndex = state.attemptsLeft - 1;
-
   if (state.devMode) {
     sfx.wrong();
     DOM.pokemonStage.classList.add("shake");
@@ -779,7 +775,6 @@ const handleWrongGuess = () => {
       DOM.pokemonStage.classList.remove("shake");
     }, { once: true });
     showFeedback("❌ Wrong! (Dev Mode: no ball lost)", "error");
-    // Re-enable choices for next try
     setTimeout(() => {
       DOM.choicesGrid.querySelectorAll(".choice-btn").forEach(b => {
         b.classList.remove("wrong", "correct", "dimmed");
@@ -789,6 +784,7 @@ const handleWrongGuess = () => {
     return;
   }
 
+  const ballIndex    = state.attemptsLeft - 1;
   state.attemptsLeft -= 1;
   persistState();
 
@@ -799,17 +795,13 @@ const handleWrongGuess = () => {
   }, { once: true });
   animateBallLoss(ballIndex);
 
-  if (state.attemptsLeft === 2) {
-    showFeedback("❌ Wrong! You still have 2 attempts left.", "error");
-    showToast("Not quite! Try again.", "error");
-    // Re-enable remaining choices (wrong one stays marked)
-    setTimeout(() => {
-      DOM.choicesGrid.querySelectorAll(".choice-btn:not(.wrong):not(.correct)").forEach(b => {
-        b.classList.remove("dimmed");
-        b.disabled = false;
-      });
-    }, 800);
+  if (state.attemptsLeft <= 0) {
+    // Out of balls — game over
+    state.streak = 0;
+    persistState();
+    handleGameOver();
   } else if (state.attemptsLeft === 1) {
+    // Last ball — unlock hint
     showHint();
     showFeedback("💡 Hint unlocked! One attempt remaining!", "info");
     showToast("Hint revealed! Last chance!", "info");
@@ -820,10 +812,16 @@ const handleWrongGuess = () => {
       });
     }, 800);
   } else {
-    // Out of balls
-    state.streak = 0;
-    persistState();
-    handleGameOver();
+    // Still has multiple balls remaining
+    const remaining = state.attemptsLeft;
+    showFeedback(`❌ Wrong! You still have ${remaining} attempt${remaining !== 1 ? "s" : ""} left.`, "error");
+    showToast("Not quite! Try again.", "error");
+    setTimeout(() => {
+      DOM.choicesGrid.querySelectorAll(".choice-btn:not(.wrong):not(.correct)").forEach(b => {
+        b.classList.remove("dimmed");
+        b.disabled = false;
+      });
+    }, 800);
   }
 };
 
@@ -863,10 +861,12 @@ const startCooldownTimer = () => {
   const tick = () => {
     const ms = getCooldownMs();
     if (ms <= 0) {
-      // Clear shown Pokémon when day resets
-      const data = loadLS();
-      saveLS({ ...data, shownToday: [], shownDate: new Date().toDateString() });
       clearInterval(state.cooldownInterval);
+      state.cooldownInterval = null;
+
+      // Reset for new day
+      const data = loadLS();
+      saveLS({ ...data, shownToday: [], shownDate: new Date().toDateString(), depletedAt: undefined });
       state.attemptsLeft = MAX_BALLS;
       saveLS({ score: state.score, streak: state.streak, attemptsLeft: MAX_BALLS });
       renderPokeballs();
@@ -953,11 +953,13 @@ DOM.btnNext.addEventListener("click", async () => {
   await loadNewPokemon();
 });
 
+// FIX: Skip no longer resets streak — it's a deliberate pass, not a failure
 DOM.btnSkip.addEventListener("click", () => {
   sfx.click();
-  if (state.isLoading || !state.currentPokemon) return;
+  if (state.isLoading || !state.currentPokemon || state.isRevealed) return;
 
   if (!state.devMode) {
+    if (state.attemptsLeft <= 0) return;
     state.attemptsLeft -= 1;
     persistState();
     renderPokeballs();
@@ -967,8 +969,7 @@ DOM.btnSkip.addEventListener("click", () => {
   revealPokemon();
 
   if (!state.devMode && state.attemptsLeft <= 0) {
-    state.streak = 0;
-    persistState();
+    // FIX: Don't punish streak on intentional skip — only reset on wrong guess game-over
     setTimeout(() => {
       updateCooldownScreen();
       showScreen(DOM.screenCooldown);
